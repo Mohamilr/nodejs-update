@@ -1,18 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { login } from '../../actions/auth';
-import EmailLoader from '../Loader/EmailLoader';
 import './Login.css';
-const Login = ({ login, history, loading }) => {
+const Login = ({ login, history, loginAuth }) => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    loading: !1
   });
-  const { email, password } = formData;
+
+  const { email, password, loading } = formData;
+
   const onChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  useEffect(() => {
+    setFormData({
+      email: document.getElementById('email').value,
+      password: document.getElementById('password').value,
+      loading: !1
+    });
+
+  }, [loginAuth.authData]);
   return (
     <div>
       <div class='reg-container'>
@@ -20,50 +31,50 @@ const Login = ({ login, history, loading }) => {
         <form
           onSubmit={e => {
             e.preventDefault();
+            setFormData({ loading: !0 });
             login(email, password, history);
           }}>
           <label for='email'></label>
           <input
             id='email'
             onChange={e => onChange(e)}
-            value={email}
+            // value={email}
             type='email'
             name='email'
             required
-            placeholder='email'
+            placeholder='Email'
             style={{ fontFamily: 'Arial, FontAwesome' }}
           />
-
           <label for='password'></label>
           <input
             id='password'
             onChange={e => onChange(e)}
-            value={password}
+            // value={password}
             type='password'
             name='password'
             required
-            placeholder='*******'
+            placeholder='Password'
             style={{ fontFamily: 'Arial, FontAwesome' }}
           />
-
-          <button className='btn'>
-            {loading ? (
-              <i className='fas fa-circle-notch text-white spin-loader' />
-            ) : null}
-            Login
-          </button>
+          {loading ? (
+            <button className='btn btn-secondary' type='button' disabled>
+              <span
+                className='mr-2 spinner-grow spinner-grow-sm'
+                role='status'
+                aria-hidden='true'></span>
+            </button>
+          ) : (
+            <button className='btn'>Login</button>
+          )}
         </form>
-
-        <p>
+        <p className='mt-4'>
           Don't have an account? <Link to='/register'>Sign Up</Link>{' '}
         </p>
       </div>
     </div>
   );
 };
-const mapStateToProps = state => ({
-  loading: state.auth.loading
-});
+const mapStateToProps = state => ({ loginAuth: state.authError });
 export default connect(
   mapStateToProps,
   { login }

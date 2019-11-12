@@ -1,27 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { register } from '../../actions/auth';
-import EmailLoader from '../Loader/EmailLoader';
 import { Link } from 'react-router-dom';
-
 import './Register.css';
-const Register = ({ register, history, loading }) => {
+const Register = ({ register, history, registerAuth }) => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    password: ''
+    password: '',
+    loading: !1
   });
-  const { username, email, password } = formData;
+  const { username, email, password, loading } = formData;
   const onChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  useEffect(() => {
+    setFormData({
+      username: document.getElementById('username').value,
+      email: document.getElementById('email').value,
+      password: document.getElementById('password').value,
+      loading: !1
+    });
+  }, [registerAuth.authData]);
   return (
     <div>
       <div class='reg-containerr'>
         <h2>Create account</h2>
+      <p className='benefit'>Register to have access to up to 10GB of storage, view all your upload history, track the number of downloads on your uploaded files and many more.</p>
         <form
           onSubmit={e => {
             e.preventDefault();
+            setFormData({ loading: !0 });
             register(username, email, password, history);
           }}>
           <label for='username'></label>
@@ -31,11 +40,10 @@ const Register = ({ register, history, loading }) => {
             id='username'
             name='username'
             value={username}
-            placeholder='&#xf007;  username'
+            placeholder='Username'
             style={{ fontFamily: 'Arial, FontAwesome' }}
             required
           />
-
           <label for='email'></label>
           <input
             name='email'
@@ -44,10 +52,9 @@ const Register = ({ register, history, loading }) => {
             required
             onChange={e => onChange(e)}
             type='email'
-            placeholder='email'
+            placeholder='Email'
             style={{ fontFamily: 'Arial, FontAwesome' }}
           />
-
           <label for='password'></label>
           <input
             type='password'
@@ -57,27 +64,28 @@ const Register = ({ register, history, loading }) => {
             minLength={3}
             onChange={e => onChange(e)}
             required
-            placeholder='*******'
+            placeholder='Password'
             style={{ fontFamily: 'Arial, FontAwesome' }}
           />
-          <button className='btn'>
-            {loading ? (
-              <i className='fas fa-circle-o-notch text-white spin-loader' />
-            ) : null}
-            Register
-          </button>
+          {loading ? (
+            <button className='btn btn-secondary' type='button' disabled>
+              <span
+                className='mr-2 spinner-grow spinner-grow-sm'
+                role='status'
+                aria-hidden='true'></span>
+            </button>
+          ) : (
+            <button className='btn'>Create Account</button>
+          )}
         </form>
-
-        <p>
-          Already have an account? <Link to='/login'>Login</Link>{' '}
+        <p className='mt-4'>
+          Already have an account?<Link to='/login'> Login</Link>{' '}
         </p>
       </div>
     </div>
   );
 };
-const mapStateToProps = state => ({
-  loading: state.auth.loading
-});
+const mapStateToProps = state => ({ registerAuth: state.authError });
 export default connect(
   mapStateToProps,
   { register }
